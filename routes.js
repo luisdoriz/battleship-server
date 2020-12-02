@@ -12,8 +12,9 @@ module.exports = (app, io) => {
       rooms.push({ uid, users: 1 });
       session(io, uid);//crear websocket namespace
     } else {//Hay sesiones con 1 solo jugador, añadirlo
-      uid = availableRoom[0].id;
-      filtrados[0].users = 2;
+      uid = availableRoom[0].uid;
+      availableRoom[0].users = 2;
+      rooms.pop();
     }
     res.send({ room: uid }).status(200);
   });
