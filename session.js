@@ -3,16 +3,17 @@ const rooms = {};
 const getUserId = (socket, uid) => Object.keys(rooms[uid].players).find((player) => player !== socket.id)
 
 const getEmptyMatrix = () => {
-  return new Array(10).fill(new Array(10).fill('.'))
+  return new Array(10).fill(".").map(() => new Array(10).fill("."));
 }
 
 const getMatrix = (tablero) => {
   let matrix = getEmptyMatrix();
+
   Object.keys(tablero).forEach((key) => {
     const { yi, yf, xi, xf } = tablero[key];
-    for (let i = yi; i <= yf; i++) {
-      for (let j = xi; j <= xf; j++) {
-        matrix[j][i] = 's';
+    for (let i = xi; i <= xf; i++) {
+      for (let j = yi; j <= yf; j++) {
+        matrix[i][j] = "s";
       }
     }
   });
@@ -20,11 +21,12 @@ const getMatrix = (tablero) => {
 }
 
 const didPlayerLose = (tablero) => {
-  tablero.forEach((row) => {
-    if (row.includes('s'))
-      return false;
-  })
-  return true;
+  
+    for(let i=0;i<10;i++)
+        for(let j=0;j<10;j++)
+            if (tablero[i][j]=='s')
+                return false;
+    return true;
 }
 
 const startGame = (socket, nameSpace, tablero, uid) => {
@@ -39,6 +41,7 @@ const startGame = (socket, nameSpace, tablero, uid) => {
     const firstShooter = nameSpace.sockets.get(firstShooterId);
     firstShooter.emit('turno');
   }
+    
 }
 
 const shoot = (x, y, socket, nameSpace, playerCount, uid) => {
@@ -47,7 +50,7 @@ const shoot = (x, y, socket, nameSpace, playerCount, uid) => {
   const tablero = rooms[uid].players[victimId];
   const victimSocket = nameSpace.sockets.get(victimId);
   if (x < 0 || x > 9 || y < 0 || y > 9) {
-    console.log(`Jugador ${numJugador}: disparo invalido en x:${x + 1} y:${y + 1}`);
+    console.log(`Jugador ${numJugador}: disparo invalido en x:${x} y:${y}`);
     
     socket.emit('perdedor', {
       razon: 'tiro invalido'
@@ -58,12 +61,14 @@ const shoot = (x, y, socket, nameSpace, playerCount, uid) => {
     return;
   }
   if (tablero[x][y] === 's') {
-    console.log(`Jugador ${numJugador}: Disparo exitoso en x:${x + 1} y:${y + 1}`);
+    console.log(`Jugador ${numJugador}: Disparo exitoso en x:${x} y:${y}`);
     tablero[x][y] = 'x';
     socket.emit('exito', { x, y });
     victimSocket.emit('impacto', { x, y });
+    //victimSocket.emit('turno');
     
     if (didPlayerLose(tablero)) {
+        console.log(`Jugador ${numJugador}: perdiste`);
       socket.emit('ganador', {
         razon: 'fin'
       });
