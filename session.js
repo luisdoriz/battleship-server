@@ -76,7 +76,7 @@ const shoot = (x, y, socket, nameSpace, playerCount, uid) => {
         razon: 'fin'
       });
     } else {
-      victimSocket.emit('turno');
+      socket.emit('turno');
     }
   }
   else {
@@ -95,7 +95,6 @@ module.exports = (io, uid) => {
   const nameSpace = io.of(`/${uid}`);
   playerCount = {};
 
-
   nameSpace.on('connection', (socket) => {
     console.log('connection')
     playerCount[socket.id] = nameSpace.sockets.size;
@@ -103,7 +102,7 @@ module.exports = (io, uid) => {
       nameSpace.emit('start');
     }
     socket.on('disconnect', () => {
-      console.log('Got disconnect!');
+      console.log('Got disconnected!');
       const winnerId = getUserId(socket, uid);
       const winner = nameSpace.sockets.get(winnerId);
       if (!winner) return;
