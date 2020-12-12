@@ -11,8 +11,8 @@ const getMatrix = (tablero) => {
 
   Object.keys(tablero).forEach((key) => {
     const { yi, yf, xi, xf } = tablero[key];
-    for (let i = xi; i <= xf; i++) {
-      for (let j = yi; j <= yf; j++) {
+    for (let i = yi; i <= yf; i++) {
+      for (let j = xi; j <= xf; j++) {
         matrix[i][j] = "s";
       }
     }
@@ -60,9 +60,9 @@ const shoot = (x, y, socket, nameSpace, playerCount, uid) => {
     });
     return;
   }
-  if (tablero[x][y] === 's') {
+  if (tablero[y][x] === 's') {
     console.log(`Jugador ${numJugador}: Disparo exitoso en x:${x} y:${y}`);
-    tablero[x][y] = 'x';
+    tablero[y][x] = 'x';
     socket.emit('exito', { x, y });
     victimSocket.emit('impacto', { x, y });
     //victimSocket.emit('turno');
@@ -80,11 +80,11 @@ const shoot = (x, y, socket, nameSpace, playerCount, uid) => {
     }
   }
   else {
-    console.log(`Jugador ${numJugador}: Disparo fallido en  x:${x + 1} y:${y + 1}`);
-    tablero[x][y] = 'x';
-    socket.emit('fracaso', { x, y });
+    console.log(`Jugador ${numJugador}: Disparo fallido en  x:${y} y:${x}`);
+    tablero[y][x] = 'x';
+    socket.emit('fracaso', { y, x });
     const victimSocket = nameSpace.sockets.get(victimId);
-    victimSocket.emit('salvado', { x, y });
+    victimSocket.emit('salvado', { y, x });
     victimSocket.emit('turno');
   }
 
